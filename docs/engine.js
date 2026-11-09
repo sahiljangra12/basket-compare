@@ -51,7 +51,7 @@ function noise(...parts) {
 
 let catalog;
 async function loadCatalog() {
-  if (!catalog) catalog = await (await fetch("sample-catalog.json")).json();
+  if (!catalog) catalog = await (await fetch("sample-catalog.json?v=4")).json();
   return catalog;
 }
 
