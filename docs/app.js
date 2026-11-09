@@ -60,9 +60,14 @@ function tagHTML(o, i) {
   const sale = o.regular_price && o.regular_price > o.price;
   const where = o.price_scope === "online" ? "Online price" : "In-store price";
   const meta = [o.size, o.store].filter(Boolean).map(esc).join(", ");
+  // Stock photos are scenes (fill the frame); retailer packshots sit on white (show whole pack).
+  const img = o.image
+    ? `<div class="tag-photo ${o.image_credit || o.source === "demo" ? "scene" : "pack"}"><img src="${esc(o.image)}" alt="${esc(o.title)}" loading="lazy" onerror="this.parentNode.remove()"></div>`
+    : "";
   return `
   <article class="tag${best ? " best" : ""}${sale ? " sale" : ""}">
     <div class="tag-store">${esc(o.retailer)} <small>${best ? `Lowest per ${esc(o.unit)}` : sale ? "On sale" : where}</small></div>
+    ${img}
     <div class="tag-body">
       <div class="unit-box">${o.unit_price != null ? `Unit price<strong>${money(o.unit_price)}</strong>per ${esc(o.unit)}` : "Unit price not listed"}</div>
       <div class="price-box">${priceHTML(o.price)}${sale ? `<span class="was">was <s>${money(o.regular_price)}</s></span>` : ""}</div>
@@ -73,6 +78,36 @@ function tagHTML(o, i) {
       <a class="order" href="${esc(o.url)}" target="_blank" rel="noopener sponsored">Order at ${esc(o.retailer)}</a>
     </div>
   </article>`;
+}
+
+function productCard(q, data) {
+  const g = data.guide || {};
+  const offers = data.offers;
+  const b = offers[0];
+  const stores = new Set(offers.map((o) => o.retailer)).size;
+  const sameUnit = offers.filter((o) => o.unit === b.unit && o.unit_price != null).map((o) => o.unit_price);
+  const hi = sameUnit.length ? Math.max(...sameUnit) : null;
+  const credit = g.credit
+    ? `<figcaption>Photo: <a href="${esc(g.credit.page)}" target="_blank" rel="noopener">${esc(g.credit.author)}</a>, ${esc(g.credit.license)}</figcaption>`
+    : "";
+  const photo = g.image
+    ? `<figure class="product-photo"><img src="${esc(g.image)}" alt="${esc(g.title)}" onerror="this.closest('figure').remove()">${credit}</figure>`
+    : "";
+  return `
+  <section class="product${photo ? "" : " no-photo"}">
+    ${photo}
+    <div class="product-info">
+      <h2>${esc(q.charAt(0).toUpperCase() + q.slice(1))}</h2>
+      ${g.description ? `<p class="product-desc">${esc(g.description)}</p>` : ""}
+      ${g.tip ? `<p class="product-tip"><strong>Buying tip</strong> ${esc(g.tip)}</p>` : ""}
+      <div class="product-facts">
+        ${b.unit_price != null ? `<div><span>Lowest</span><strong>${money(b.unit_price)}<small>/${esc(b.unit)}</small></strong><em>at ${esc(b.retailer)}</em></div>` : ""}
+        ${hi != null && hi > b.unit_price ? `<div><span>Highest</span><strong>${money(hi)}<small>/${esc(b.unit)}</small></strong><em>${Math.round((hi / b.unit_price - 1) * 100)}% more</em></div>` : ""}
+        <div><span>Compared</span><strong>${offers.length}</strong><em>prices at ${stores} stores</em></div>
+      </div>
+      <button class="add-btn" id="add" type="button">Add to basket</button>
+    </div>
+  </section>`;
 }
 
 function inBasket(q) { return basket.some((b) => b.query.toLowerCase() === q.toLowerCase()); }
@@ -103,17 +138,7 @@ async function runSearch(q) {
     if (!data.offers.length) {
       out.innerHTML = `<div class="problem">No prices found for “${esc(q)}”. Try a shorter name, like “grapes” instead of “red grapes 2lb”.</div>`;
     } else {
-      const stores = new Set(data.offers.map((o) => o.retailer)).size;
-      const b = data.offers[0];
-      out.innerHTML = `
-        <div class="results-head">
-          <div>
-            <h2>${esc(q.charAt(0).toUpperCase() + q.slice(1))}</h2>
-            <p>${data.offers.length} prices from ${stores} stores${b.unit_price != null ? `. Lowest is ${money(b.unit_price)} per ${esc(b.unit)} at ${esc(b.retailer)}.` : "."}</p>
-          </div>
-          <button class="add-btn" id="add" type="button">Add to basket</button>
-        </div>
-        <div class="shelf">${data.offers.map(tagHTML).join("")}</div>`;
+      out.innerHTML = productCard(q, data) + `<div class="shelf">${data.offers.map(tagHTML).join("")}</div>`;
       $("#add").onclick = () => { if (!inBasket(q)) { basket.push({ query: q, quantity: 1 }); save(); renderBasket(); } renderAddButton(); };
       renderAddButton();
     }

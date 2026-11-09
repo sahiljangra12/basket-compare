@@ -10,6 +10,7 @@ import hashlib
 from ..models import Offer
 from ..units import parse_size
 from .base import PriceSource
+from .guide import GUIDE
 from .linkouts import search_url
 
 # name, keywords, base price, {retailer: size}  (size differs by store on purpose)
@@ -80,6 +81,9 @@ class DemoSource(PriceSource):
                         size=size,
                         price=max(price, 0.25),
                         url=search_url(retailer, title),
+                        image=GUIDE.get(title, {}).get("photo", {}).get("src"),
+                        image_credit={k: v for k, v in GUIDE.get(title, {}).get("photo", {}).items() if k != "src"} or None,
+                        description=GUIDE.get(title, {}).get("description"),
                         in_stock=True,
                         price_scope="online" if retailer in ("Walmart", "Amazon Fresh") else "store",
                         source="demo",

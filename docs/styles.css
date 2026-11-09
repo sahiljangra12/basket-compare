@@ -207,3 +207,43 @@ a { color: var(--leaf); }
   .tag:nth-child(4) { animation-delay: .12s; } .tag:nth-child(n+5) { animation-delay: .16s; }
   @keyframes hang { from { transform: rotate(-3deg) translateY(-8px); opacity: 0; } }
 }
+
+/* Product card: the item you searched, above its shelf */
+.product {
+  background: var(--paper); border-radius: 18px 18px 0 0; padding: 20px;
+  display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 24px; align-items: start;
+}
+.product.no-photo { grid-template-columns: minmax(0, 1fr); }
+.product-photo { margin: 0; }
+.product-photo img {
+  display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 14px; background: var(--mint);
+}
+.product-photo figcaption { margin-top: 6px; font-size: 11px; color: var(--soft); line-height: 1.35; }
+.product-photo figcaption a { color: inherit; }
+.product-info h2 { margin: 2px 0 6px; font-size: 40px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+.product-desc { margin: 0 0 10px; font-size: 17px; max-width: 52ch; }
+.product-tip { margin: 0 0 16px; font-size: 15px; color: var(--soft); max-width: 56ch; padding-left: 12px; border-left: 3px solid var(--tag); }
+.product-tip strong { color: var(--ink); font-weight: 600; margin-right: 4px; }
+.product-facts { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.product-facts div {
+  display: grid; padding: 8px 14px 9px; border-radius: 12px; background: var(--mint); min-width: 120px; line-height: 1.15;
+}
+.product-facts div:first-child { background: var(--tag); }
+.product-facts span { font-size: 13px; color: var(--soft); }
+.product-facts div:first-child span, .product-facts div:first-child em { color: #4a4320; }
+.product-facts strong { font: 800 30px/1.05 var(--price); }
+.product-facts small { font-size: 16px; font-weight: 600; }
+.product-facts em { font-style: normal; font-size: 13px; color: var(--soft); }
+
+/* Photo on each shelf tag */
+.tag-photo { aspect-ratio: 4 / 3; overflow: hidden; background: #fff; border-bottom: 1.5px solid #d9e2da; }
+.tag-photo img { display: block; width: 100%; height: 100%; }
+.tag-photo.scene img { object-fit: cover; }
+.tag-photo.pack img { object-fit: contain; padding: 10px; }
+.tag.best .tag-photo { border-color: rgba(21,33,26,.25); }
+
+@media (max-width: 700px) {
+  .product { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 16px; }
+  .product-photo img { aspect-ratio: 16 / 10; }
+  .product-info h2 { font-size: 32px; }
+}

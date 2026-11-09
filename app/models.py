@@ -21,6 +21,8 @@ class Offer(BaseModel):
     unit: str | None = None            # "lb", "fl oz", "item"
     url: str                           # where the shopper buys it (affiliate-tagged when configured)
     image: str | None = None
+    image_credit: dict | None = None   # {"author", "license", "page"} for licensed stock photos
+    description: str | None = None
     in_stock: bool | None = None
     price_scope: str = "store"         # "store" (local shelf price) or "online" (national web price)
     source: str = "live"               # "live" or "demo" — demo prices must never be shown as real

@@ -27,6 +27,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Red+Seedless+Grapes&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Red+Seedless+Grapes",
     "Aldi": "https://www.aldi.us/results?q=Red+Seedless+Grapes"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Red_grapes_%281%29.jpg/500px-Red_grapes_%281%29.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Red_grapes_%281%29.jpg",
+     "author": "Scott Bauer, USDA",
+     "license": "Public domain"
+    },
+    "description": "Crisp, sweet table grapes with no seeds. Good for snacking, lunchboxes and freezing.",
+    "tip": "Pick bunches with green, flexible stems; brown brittle stems mean older fruit."
    }
   },
   {
@@ -45,6 +55,16 @@
     "Giant": "https://giantfood.com/product-search/Green+Seedless+Grapes",
     "Walmart": "https://www.walmart.com/search?q=Green+Seedless+Grapes",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Green+Seedless+Grapes"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/A_bunch_of_grapes.jpg/500px-A_bunch_of_grapes.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:A_bunch_of_grapes.jpg",
+     "author": "Vijay Kumar Soren",
+     "license": "CC BY-SA 4.0"
+    },
+    "description": "Tart-sweet and firm, a little sharper than red grapes.",
+    "tip": "A slight yellow tint means riper and sweeter."
    }
   },
   {
@@ -67,6 +87,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Bananas&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Bananas",
     "Aldi": "https://www.aldi.us/results?q=Bananas"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Banana_bunch.jpeg/500px-Banana_bunch.jpeg",
+     "page": "https://commons.wikimedia.org/wiki/File:Banana_bunch.jpeg",
+     "author": "NW Indian Language Institute",
+     "license": "CC BY 3.0"
+    },
+    "description": "Sold by the pound, usually around three bananas to a pound.",
+    "tip": "Buy a mix of yellow and green so they don't all ripen on the same day."
    }
   },
   {
@@ -90,6 +120,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Gala+Apples&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Gala+Apples",
     "Aldi": "https://www.aldi.us/results?q=Gala+Apples"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/A_Gala_Apple.jpg/500px-A_Gala_Apple.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:A_Gala_Apple.jpg",
+     "author": "Corn cheese",
+     "license": "CC BY-SA 4.0"
+    },
+    "description": "Mild, sweet and crunchy. One of the cheapest everyday apples.",
+    "tip": "Bagged apples usually cost less per pound than loose ones."
    }
   },
   {
@@ -113,6 +153,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Strawberries&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Strawberries",
     "Aldi": "https://www.aldi.us/results?q=Strawberries"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Liat_Portal_for_Foodie_Disorder_-_Fresh_Strawberries.jpg/500px-Liat_Portal_for_Foodie_Disorder_-_Fresh_Strawberries.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Liat_Portal_for_Foodie_Disorder_-_Fresh_Strawberries.jpg",
+     "author": "HaJunkiyada",
+     "license": "CC BY-SA 4.0"
+    },
+    "description": "Usually sold in 1 lb clamshells. Best eaten within two or three days.",
+    "tip": "Check the bottom of the box for crushed or moldy berries."
    }
   },
   {
@@ -135,6 +185,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Whole+Milk&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Whole+Milk",
     "Aldi": "https://www.aldi.us/results?q=Whole+Milk"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Milk_Pitcher_With_Lid.jpg/500px-Milk_Pitcher_With_Lid.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Milk_Pitcher_With_Lid.jpg",
+     "author": "Pitcherman (Zenon Niewada)",
+     "license": "Public domain"
+    },
+    "description": "About 3.25% milkfat. A gallon is roughly 16 cups.",
+    "tip": "Grab a jug from the back of the case for the latest sell-by date."
    }
   },
   {
@@ -157,6 +217,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=2%25+Reduced+Fat+Milk&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=2%25+Reduced+Fat+Milk",
     "Aldi": "https://www.aldi.us/results?q=2%25+Reduced+Fat+Milk"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Milk_jug_top.png/500px-Milk_jug_top.png",
+     "page": "https://commons.wikimedia.org/wiki/File:Milk_jug_top.png",
+     "author": "Kelapstick",
+     "license": "Public domain"
+    },
+    "description": "Lighter than whole milk with the same protein and calcium.",
+    "tip": "Half gallons often cost more per ounce than a full gallon."
    }
   },
   {
@@ -179,6 +249,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Large+Grade+A+Eggs&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Large+Grade+A+Eggs",
     "Aldi": "https://www.aldi.us/results?q=Large+Grade+A+Eggs"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Brown_eggs_in_a_deviled_egg_plate.jpg/500px-Brown_eggs_in_a_deviled_egg_plate.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Brown_eggs_in_a_deviled_egg_plate.jpg",
+     "author": "E4024",
+     "license": "CC BY-SA 4.0"
+    },
+    "description": "The standard size most recipes assume. Brown and white eggs taste the same.",
+    "tip": "Open the carton and check for cracked shells before you buy."
    }
   },
   {
@@ -201,6 +281,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=White+Sandwich+Bread&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=White+Sandwich+Bread",
     "Aldi": "https://www.aldi.us/results?q=White+Sandwich+Bread"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Tin_Loaf_-_one_slash_in_the_crust.jpg/500px-Tin_Loaf_-_one_slash_in_the_crust.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Tin_Loaf_-_one_slash_in_the_crust.jpg",
+     "author": "Mike Finn",
+     "license": "CC BY 2.0"
+    },
+    "description": "Soft sliced loaf, typically 20 oz and about 22 slices.",
+    "tip": "Freeze half the loaf if you won't finish it within five days."
    }
   },
   {
@@ -223,6 +313,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Boneless+Skinless+Chicken+Breast&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Boneless+Skinless+Chicken+Breast",
     "Aldi": "https://www.aldi.us/results?q=Boneless+Skinless+Chicken+Breast"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Raw_chicken_slices.jpg/500px-Raw_chicken_slices.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Raw_chicken_slices.jpg",
+     "author": "kakyusei",
+     "license": "CC0"
+    },
+    "description": "Lean, quick-cooking cut. Family packs cut the price per pound.",
+    "tip": "Family packs freeze well when split into meal-size bags."
    }
   },
   {
@@ -245,6 +345,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=80%25+Lean+Ground+Beef&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=80%25+Lean+Ground+Beef",
     "Aldi": "https://www.aldi.us/results?q=80%25+Lean+Ground+Beef"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Hakket-oksekoed.jpg/500px-Hakket-oksekoed.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Hakket-oksekoed.jpg",
+     "author": "Gajda-13",
+     "license": "CC BY-SA 3.0"
+    },
+    "description": "Juicy blend for burgers and meatballs. 80/20 means 20% fat.",
+    "tip": "Use it within two days of buying, or freeze it flat."
    }
   },
   {
@@ -266,6 +376,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Long+Grain+White+Rice&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Long+Grain+White+Rice",
     "Aldi": "https://www.aldi.us/results?q=Long+Grain+White+Rice"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Uncooked_ST25_rice_on_bamboo_surface.jpg/500px-Uncooked_ST25_rice_on_bamboo_surface.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Uncooked_ST25_rice_on_bamboo_surface.jpg",
+     "author": "VinhNguyen.1257",
+     "license": "CC BY-SA 4.0"
+    },
+    "description": "Fluffy, separate grains. One pound makes about ten cooked cups.",
+    "tip": "Bigger bags are much cheaper per pound and keep for months."
    }
   },
   {
@@ -288,6 +408,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Spaghetti+Pasta&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Spaghetti+Pasta",
     "Aldi": "https://www.aldi.us/results?q=Spaghetti+Pasta"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Spaghetti_measure_macro.jpg/500px-Spaghetti_measure_macro.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Spaghetti_measure_macro.jpg",
+     "author": "Bodhi Peace",
+     "license": "CC BY-SA 4.0"
+    },
+    "description": "Dry durum-wheat pasta. A 1 lb box serves four to six.",
+    "tip": "Store brands are often made by the same mills as name brands."
    }
   },
   {
@@ -310,6 +440,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Sharp+Cheddar+Cheese&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Sharp+Cheddar+Cheese",
     "Aldi": "https://www.aldi.us/results?q=Sharp+Cheddar+Cheese"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Somerset-Cheddar.jpg/500px-Somerset-Cheddar.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Somerset-Cheddar.jpg",
+     "author": "J.P.Lon",
+     "license": "CC BY-SA 3.0"
+    },
+    "description": "Aged cheddar with a stronger, tangier flavor than mild.",
+    "tip": "Blocks cost less per ounce than pre-shredded bags."
    }
   },
   {
@@ -331,6 +471,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Salted+Butter&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Salted+Butter",
     "Aldi": "https://www.aldi.us/results?q=Salted+Butter"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/2019-11-28_14_27_10_A_stick_of_butter_laid_out_for_Thanksgiving_Dinner_in_the_Parkway_Village_section_of_Ewing_Township%2C_Mercer_County%2C_New_Jersey.jpg/500px-2019-11-28_14_27_10_A_stick_of_butter_laid_out_for_Thanksgiving_Dinner_in_the_Parkway_Village_section_of_Ewing_Township%2C_Mercer_County%2C_New_Jersey.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:2019-11-28_14_27_10_A_stick_of_butter_laid_out_for_Thanksgiving_Dinner_in_the_Parkway_Village_section_of_Ewing_Township%2C_Mercer_County%2C_New_Jersey.jpg",
+     "author": "Famartin",
+     "license": "CC BY-SA 4.0"
+    },
+    "description": "Usually four 4 oz sticks to a 1 lb box.",
+    "tip": "Butter freezes for months, so stock up when it's on sale."
    }
   },
   {
@@ -354,6 +504,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Orange+Juice%2C+No+Pulp&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Orange+Juice%2C+No+Pulp",
     "Aldi": "https://www.aldi.us/results?q=Orange+Juice%2C+No+Pulp"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Orange_juice_1_edit1.jpg/500px-Orange_juice_1_edit1.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Orange_juice_1_edit1.jpg",
+     "author": "USDA",
+     "license": "Public domain"
+    },
+    "description": "100% juice, pulp strained out. Chilled cartons beat concentrate on taste.",
+    "tip": "Compare per fluid ounce; carton sizes vary between 52 and 89 oz."
    }
   },
   {
@@ -376,6 +536,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Greek+Yogurt%2C+Plain&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Greek+Yogurt%2C+Plain",
     "Aldi": "https://www.aldi.us/results?q=Greek+Yogurt%2C+Plain"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Yogurt%2C_fruit%2C_granola_bowl_%2834999358091%29.jpg/500px-Yogurt%2C_fruit%2C_granola_bowl_%2834999358091%29.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Yogurt%2C_fruit%2C_granola_bowl_%2834999358091%29.jpg",
+     "author": "T.Tseng",
+     "license": "CC BY 2.0"
+    },
+    "description": "Strained yogurt, thick and high in protein. Plain has no added sugar.",
+    "tip": "The 32 oz tub is usually far cheaper than single cups."
    }
   },
   {
@@ -398,6 +568,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Roma+Tomatoes&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Roma+Tomatoes",
     "Aldi": "https://www.aldi.us/results?q=Roma+Tomatoes"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Roma_or_Bangalore_Tomatoes_%28Indian_hybrid%29.jpg/500px-Roma_or_Bangalore_Tomatoes_%28Indian_hybrid%29.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Roma_or_Bangalore_Tomatoes_%28Indian_hybrid%29.jpg",
+     "author": "Aravind Sivaraj",
+     "license": "CC BY-SA 3.0"
+    },
+    "description": "Meaty plum tomatoes with fewer seeds, good for sauces and salsa.",
+    "tip": "Keep them on the counter, not in the fridge, for better flavor."
    }
   },
   {
@@ -420,6 +600,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Yellow+Onions&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Yellow+Onions",
     "Aldi": "https://www.aldi.us/results?q=Yellow+Onions"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Onion_on_White.JPG/500px-Onion_on_White.JPG",
+     "page": "https://commons.wikimedia.org/wiki/File:Onion_on_White.JPG",
+     "author": "Colin",
+     "license": "CC BY-SA 3.0"
+    },
+    "description": "All-purpose cooking onion that turns sweet when cooked.",
+    "tip": "Choose firm onions with dry, papery skins and no soft spots."
    }
   },
   {
@@ -442,6 +632,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Russet+Potatoes&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Russet+Potatoes",
     "Aldi": "https://www.aldi.us/results?q=Russet+Potatoes"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Russet_potato.jpg/500px-Russet_potato.jpg",
+     "page": "https://commons.wikimedia.org/wiki/File:Russet_potato.jpg",
+     "author": "Steve Caruso",
+     "license": "CC BY-SA 2.5"
+    },
+    "description": "Starchy potatoes for baking, mashing and fries.",
+    "tip": "Store somewhere cool and dark, away from onions."
    }
   },
   {
@@ -463,6 +663,16 @@
     "Amazon Fresh": "https://www.amazon.com/s?k=Ground+Coffee%2C+Medium+Roast&i=amazonfresh",
     "Harris Teeter": "https://www.harristeeter.com/search?query=Ground+Coffee%2C+Medium+Roast",
     "Aldi": "https://www.aldi.us/results?q=Ground+Coffee%2C+Medium+Roast"
+   },
+   "guide": {
+    "photo": {
+     "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Coarsely_grounded_coffee_beans_in_white_bowl_with_intact_roasted_bean.png/500px-Coarsely_grounded_coffee_beans_in_white_bowl_with_intact_roasted_bean.png",
+     "page": "https://commons.wikimedia.org/wiki/File:Coarsely_grounded_coffee_beans_in_white_bowl_with_intact_roasted_bean.png",
+     "author": "Alorin",
+     "license": "CC BY 4.0"
+    },
+    "description": "Balanced, everyday roast for drip machines.",
+    "tip": "Bag sizes shrink quietly (12 oz to 11.3 oz), so compare per ounce."
    }
   }
  ]

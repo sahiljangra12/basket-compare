@@ -94,6 +94,7 @@ async function findOffers(query, zip) {
       offers.push(withUnitPrice({
         retailer, title: item.title, size, price: Math.max(Math.round(price * 100) / 100, 0.25),
         url: item.urls[retailer], in_stock: true, source: "demo",
+        image: item.guide?.photo.src ?? null, description: item.guide?.description ?? null,
         store: ["Giant", "Harris Teeter", "Aldi"].includes(retailer) ? `${retailer} — sample store` : null,
         price_scope: ["Walmart", "Amazon Fresh"].includes(retailer) ? "online" : "store",
       }));
@@ -106,6 +107,7 @@ async function findOffers(query, zip) {
 
 export async function search(query, zip) {
   const offers = await findOffers(query, zip);
+  const cat = await loadCatalog();
   const priced = new Set(offers.map((o) => o.retailer));
   const unpriced = Object.entries(UNPRICED_NOTE).filter(([r]) => !priced.has(r)).map(([retailer, reason]) => ({
     retailer, reason,
@@ -113,7 +115,12 @@ export async function search(query, zip) {
       : retailer === "Aldi" ? `https://www.aldi.us/results?q=${encodeURIComponent(query)}`
       : `https://www.amazon.com/s?k=${encodeURIComponent(query)}&i=amazonfresh`,
   }));
-  return { query, zip, demo_mode: true, offers, best: offers[0] ?? null, unpriced, errors: [] };
+  const top = offers[0];
+  const g = top && cat.items.find((i) => i.title === top.title)?.guide;
+  const guide = top ? (g
+    ? { title: top.title, image: g.photo.src, credit: { author: g.photo.author, license: g.photo.license, page: g.photo.page }, description: g.description, tip: g.tip }
+    : { title: top.title, image: top.image, credit: null, description: top.description, tip: null }) : null;
+  return { guide, query, zip, demo_mode: true, offers, best: offers[0] ?? null, unpriced, errors: [] };
 }
 
 const packQty = (o) => (parseSize(o.size) || parseSize(o.title))?.qty ?? null;

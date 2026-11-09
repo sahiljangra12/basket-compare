@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Photo credits — Basket Compare</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .credits { background: #fff; border-radius: 18px; padding: 24px; margin: 32px auto; max-width: 760px; }
+    .credits h1 { font-size: 32px; margin: 0 0 8px; letter-spacing: -0.02em; }
+    .credits li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="credits">
+      <h1>Photo credits</h1>
+      <p>Sample product photos come from Wikimedia Commons and are used under the licenses below. They show the kind of product, not a specific store's package.</p>
+      <ul id="list"></ul>
+      <p><a href="./">Back to Basket Compare</a></p>
+    </section>
+  </main>
+  <script>
+    fetch("sample-catalog.json").then((r) => r.json()).then((c) => {
+      document.getElementById("list").innerHTML = c.items.filter((i) => i.guide).map((i) =>
+        `<li><strong>${i.title}</strong>: <a href="${i.guide.photo.page}">${i.guide.photo.author}</a>, ${i.guide.photo.license}</li>`).join("");
+    });
+  </script>
+</body>
+</html>

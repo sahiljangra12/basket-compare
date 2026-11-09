@@ -19,6 +19,18 @@ from .base import PriceSource
 SEARCH_URL = "https://developer.api.walmart.com/api-proxy/service/affil/product/v2/search"
 
 
+def _plain(html: str | None) -> str | None:
+    """Walmart descriptions come HTML-escaped; reduce to one or two plain sentences."""
+    if not html:
+        return None
+    import html as _html
+    import re
+
+    text = re.sub(r"<[^>]+>", " ", _html.unescape(_html.unescape(html)))
+    text = re.sub(r"\s+", " ", text).strip()
+    return (text[:220].rsplit(" ", 1)[0] + "…") if len(text) > 220 else text
+
+
 class WalmartSource(PriceSource):
     name = "Walmart"
 
@@ -74,7 +86,8 @@ class WalmartSource(PriceSource):
                     price=float(price),
                     regular_price=float(it["msrp"]) if it.get("msrp") else None,
                     url=url,
-                    image=it.get("mediumImage") or it.get("thumbnailImage"),
+                    image=it.get("largeImage") or it.get("mediumImage") or it.get("thumbnailImage"),
+                    description=_plain(it.get("shortDescription")),
                     in_stock=(it.get("stock") or "").lower() == "available" if it.get("stock") else None,
                     price_scope="online",
                 ).with_unit_price()

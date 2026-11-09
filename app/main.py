@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from . import config
 from .adapters import instacart, linkouts
 from .adapters.demo import DemoSource
+from .adapters.guide import GUIDE
 from .adapters.kroger import KrogerSource
 from .adapters.walmart import WalmartSource
 from .cache import PriceCache
@@ -73,6 +74,18 @@ async def find_offers(query: str, zip_code: str) -> tuple[list[Offer], list[str]
     return rank(relevant(offers, query) or offers), errors
 
 
+def product_guide(offers: list[Offer]) -> dict | None:
+    """Photo, description and buying tip for the product at the top of the results."""
+    if not offers:
+        return None
+    top = offers[0]
+    g = GUIDE.get(top.title)
+    if g:
+        return {"title": top.title, "image": g["photo"]["src"], "credit": {k: v for k, v in g["photo"].items() if k != "src"},
+                "description": g["description"], "tip": g["tip"]}
+    return {"title": top.title, "image": top.image, "credit": None, "description": top.description, "tip": None}
+
+
 @app.get("/api/status")
 async def status():
     return {
@@ -89,6 +102,7 @@ async def search(q: str = Query(..., min_length=2, max_length=80), zip: str = Qu
     offers, errors = await find_offers(q, zip_code)
     priced = {o.retailer for o in offers}
     return {
+        "guide": product_guide(offers),
         "query": q,
         "zip": zip_code,
         "demo_mode": demo_mode(),

@@ -23,6 +23,16 @@ CHAINS = {
 }
 
 
+def _describe(p: dict) -> str | None:
+    """Kroger's public product data has no marketing copy; describe it from its fields."""
+    bits = []
+    if p.get("categories"):
+        bits.append(" / ".join(p["categories"][:2]))
+    if p.get("countryOrigin"):
+        bits.append(f"Origin: {p['countryOrigin']}")
+    return ". ".join(bits) + "." if bits else None
+
+
 class KrogerSource(PriceSource):
     name = "Kroger family (Harris Teeter)"
 
@@ -102,8 +112,8 @@ class KrogerSource(PriceSource):
             image = None
             for img in p.get("images") or []:
                 if img.get("perspective") == "front":
-                    sizes = img.get("sizes") or []
-                    image = next((s["url"] for s in sizes if s.get("size") == "medium"), None)
+                    sizes = {s.get("size"): s.get("url") for s in img.get("sizes") or []}
+                    image = sizes.get("large") or sizes.get("medium") or sizes.get("small")
             offers.append(
                 Offer(
                     retailer=retailer,
@@ -115,6 +125,7 @@ class KrogerSource(PriceSource):
                     regular_price=float(regular) if regular else None,
                     url=site + (p.get("productPageURI") or f"/search?query={query}"),
                     image=image,
+                    description=_describe(p),
                     in_stock=(item.get("fulfillment") or {}).get("inStore"),
                     price_scope="store",
                 ).with_unit_price()
