@@ -1,0 +1,469 @@
+{
+ "index": {
+  "Aldi": 0.86,
+  "Walmart": 0.92,
+  "Amazon Fresh": 1.0,
+  "Giant": 1.06,
+  "Harris Teeter": 1.12
+ },
+ "items": [
+  {
+   "title": "Red Seedless Grapes",
+   "keywords": [
+    "grape",
+    "grapes"
+   ],
+   "base": 2.49,
+   "sizes": {
+    "Giant": "per lb",
+    "Walmart": "2 lb bag",
+    "Amazon Fresh": "per lb",
+    "Harris Teeter": "per lb",
+    "Aldi": "2 lb bag"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Red+Seedless+Grapes",
+    "Walmart": "https://www.walmart.com/search?q=Red+Seedless+Grapes",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Red+Seedless+Grapes&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Red+Seedless+Grapes",
+    "Aldi": "https://www.aldi.us/results?q=Red+Seedless+Grapes"
+   }
+  },
+  {
+   "title": "Green Seedless Grapes",
+   "keywords": [
+    "grape",
+    "grapes"
+   ],
+   "base": 2.59,
+   "sizes": {
+    "Giant": "per lb",
+    "Walmart": "per lb",
+    "Harris Teeter": "per lb"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Green+Seedless+Grapes",
+    "Walmart": "https://www.walmart.com/search?q=Green+Seedless+Grapes",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Green+Seedless+Grapes"
+   }
+  },
+  {
+   "title": "Bananas",
+   "keywords": [
+    "banana",
+    "bananas"
+   ],
+   "base": 0.62,
+   "sizes": {
+    "Giant": "per lb",
+    "Walmart": "per lb",
+    "Amazon Fresh": "per lb",
+    "Harris Teeter": "per lb",
+    "Aldi": "per lb"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Bananas",
+    "Walmart": "https://www.walmart.com/search?q=Bananas",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Bananas&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Bananas",
+    "Aldi": "https://www.aldi.us/results?q=Bananas"
+   }
+  },
+  {
+   "title": "Gala Apples",
+   "keywords": [
+    "apple",
+    "apples",
+    "gala"
+   ],
+   "base": 4.49,
+   "sizes": {
+    "Giant": "3 lb bag",
+    "Walmart": "3 lb bag",
+    "Amazon Fresh": "per lb",
+    "Harris Teeter": "per lb",
+    "Aldi": "3 lb bag"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Gala+Apples",
+    "Walmart": "https://www.walmart.com/search?q=Gala+Apples",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Gala+Apples&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Gala+Apples",
+    "Aldi": "https://www.aldi.us/results?q=Gala+Apples"
+   }
+  },
+  {
+   "title": "Strawberries",
+   "keywords": [
+    "strawberry",
+    "strawberries",
+    "berries"
+   ],
+   "base": 3.49,
+   "sizes": {
+    "Giant": "16 oz",
+    "Walmart": "16 oz",
+    "Amazon Fresh": "16 oz",
+    "Harris Teeter": "16 oz",
+    "Aldi": "16 oz"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Strawberries",
+    "Walmart": "https://www.walmart.com/search?q=Strawberries",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Strawberries&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Strawberries",
+    "Aldi": "https://www.aldi.us/results?q=Strawberries"
+   }
+  },
+  {
+   "title": "Whole Milk",
+   "keywords": [
+    "milk",
+    "whole milk"
+   ],
+   "base": 3.59,
+   "sizes": {
+    "Giant": "1 gal",
+    "Walmart": "1 gal",
+    "Amazon Fresh": "1 gal",
+    "Harris Teeter": "1 gal",
+    "Aldi": "1 gal"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Whole+Milk",
+    "Walmart": "https://www.walmart.com/search?q=Whole+Milk",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Whole+Milk&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Whole+Milk",
+    "Aldi": "https://www.aldi.us/results?q=Whole+Milk"
+   }
+  },
+  {
+   "title": "2% Reduced Fat Milk",
+   "keywords": [
+    "milk",
+    "2%"
+   ],
+   "base": 3.49,
+   "sizes": {
+    "Giant": "1 gal",
+    "Walmart": "1 gal",
+    "Amazon Fresh": "0.5 gal",
+    "Harris Teeter": "1 gal",
+    "Aldi": "1 gal"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/2%25+Reduced+Fat+Milk",
+    "Walmart": "https://www.walmart.com/search?q=2%25+Reduced+Fat+Milk",
+    "Amazon Fresh": "https://www.amazon.com/s?k=2%25+Reduced+Fat+Milk&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=2%25+Reduced+Fat+Milk",
+    "Aldi": "https://www.aldi.us/results?q=2%25+Reduced+Fat+Milk"
+   }
+  },
+  {
+   "title": "Large Grade A Eggs",
+   "keywords": [
+    "egg",
+    "eggs"
+   ],
+   "base": 3.29,
+   "sizes": {
+    "Giant": "12 ct",
+    "Walmart": "18 ct",
+    "Amazon Fresh": "12 ct",
+    "Harris Teeter": "12 ct",
+    "Aldi": "12 ct"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Large+Grade+A+Eggs",
+    "Walmart": "https://www.walmart.com/search?q=Large+Grade+A+Eggs",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Large+Grade+A+Eggs&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Large+Grade+A+Eggs",
+    "Aldi": "https://www.aldi.us/results?q=Large+Grade+A+Eggs"
+   }
+  },
+  {
+   "title": "White Sandwich Bread",
+   "keywords": [
+    "bread",
+    "white bread"
+   ],
+   "base": 2.19,
+   "sizes": {
+    "Giant": "20 oz",
+    "Walmart": "20 oz",
+    "Amazon Fresh": "20 oz",
+    "Harris Teeter": "20 oz",
+    "Aldi": "20 oz"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/White+Sandwich+Bread",
+    "Walmart": "https://www.walmart.com/search?q=White+Sandwich+Bread",
+    "Amazon Fresh": "https://www.amazon.com/s?k=White+Sandwich+Bread&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=White+Sandwich+Bread",
+    "Aldi": "https://www.aldi.us/results?q=White+Sandwich+Bread"
+   }
+  },
+  {
+   "title": "Boneless Skinless Chicken Breast",
+   "keywords": [
+    "chicken",
+    "chicken breast"
+   ],
+   "base": 3.99,
+   "sizes": {
+    "Giant": "per lb",
+    "Walmart": "2.5 lb",
+    "Amazon Fresh": "per lb",
+    "Harris Teeter": "per lb",
+    "Aldi": "per lb"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Boneless+Skinless+Chicken+Breast",
+    "Walmart": "https://www.walmart.com/search?q=Boneless+Skinless+Chicken+Breast",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Boneless+Skinless+Chicken+Breast&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Boneless+Skinless+Chicken+Breast",
+    "Aldi": "https://www.aldi.us/results?q=Boneless+Skinless+Chicken+Breast"
+   }
+  },
+  {
+   "title": "80% Lean Ground Beef",
+   "keywords": [
+    "beef",
+    "ground beef"
+   ],
+   "base": 5.49,
+   "sizes": {
+    "Giant": "1 lb",
+    "Walmart": "1 lb",
+    "Amazon Fresh": "1 lb",
+    "Harris Teeter": "1 lb",
+    "Aldi": "1 lb"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/80%25+Lean+Ground+Beef",
+    "Walmart": "https://www.walmart.com/search?q=80%25+Lean+Ground+Beef",
+    "Amazon Fresh": "https://www.amazon.com/s?k=80%25+Lean+Ground+Beef&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=80%25+Lean+Ground+Beef",
+    "Aldi": "https://www.aldi.us/results?q=80%25+Lean+Ground+Beef"
+   }
+  },
+  {
+   "title": "Long Grain White Rice",
+   "keywords": [
+    "rice"
+   ],
+   "base": 3.29,
+   "sizes": {
+    "Giant": "5 lb",
+    "Walmart": "5 lb",
+    "Amazon Fresh": "2 lb",
+    "Harris Teeter": "5 lb",
+    "Aldi": "3 lb"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Long+Grain+White+Rice",
+    "Walmart": "https://www.walmart.com/search?q=Long+Grain+White+Rice",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Long+Grain+White+Rice&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Long+Grain+White+Rice",
+    "Aldi": "https://www.aldi.us/results?q=Long+Grain+White+Rice"
+   }
+  },
+  {
+   "title": "Spaghetti Pasta",
+   "keywords": [
+    "pasta",
+    "spaghetti"
+   ],
+   "base": 1.39,
+   "sizes": {
+    "Giant": "16 oz",
+    "Walmart": "16 oz",
+    "Amazon Fresh": "16 oz",
+    "Harris Teeter": "16 oz",
+    "Aldi": "16 oz"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Spaghetti+Pasta",
+    "Walmart": "https://www.walmart.com/search?q=Spaghetti+Pasta",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Spaghetti+Pasta&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Spaghetti+Pasta",
+    "Aldi": "https://www.aldi.us/results?q=Spaghetti+Pasta"
+   }
+  },
+  {
+   "title": "Sharp Cheddar Cheese",
+   "keywords": [
+    "cheese",
+    "cheddar"
+   ],
+   "base": 2.99,
+   "sizes": {
+    "Giant": "8 oz",
+    "Walmart": "8 oz",
+    "Amazon Fresh": "8 oz",
+    "Harris Teeter": "8 oz",
+    "Aldi": "16 oz"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Sharp+Cheddar+Cheese",
+    "Walmart": "https://www.walmart.com/search?q=Sharp+Cheddar+Cheese",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Sharp+Cheddar+Cheese&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Sharp+Cheddar+Cheese",
+    "Aldi": "https://www.aldi.us/results?q=Sharp+Cheddar+Cheese"
+   }
+  },
+  {
+   "title": "Salted Butter",
+   "keywords": [
+    "butter"
+   ],
+   "base": 4.29,
+   "sizes": {
+    "Giant": "16 oz",
+    "Walmart": "16 oz",
+    "Amazon Fresh": "16 oz",
+    "Harris Teeter": "16 oz",
+    "Aldi": "16 oz"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Salted+Butter",
+    "Walmart": "https://www.walmart.com/search?q=Salted+Butter",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Salted+Butter&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Salted+Butter",
+    "Aldi": "https://www.aldi.us/results?q=Salted+Butter"
+   }
+  },
+  {
+   "title": "Orange Juice, No Pulp",
+   "keywords": [
+    "orange juice",
+    "juice",
+    "oj"
+   ],
+   "base": 3.99,
+   "sizes": {
+    "Giant": "52 fl oz",
+    "Walmart": "52 fl oz",
+    "Amazon Fresh": "89 fl oz",
+    "Harris Teeter": "52 fl oz",
+    "Aldi": "52 fl oz"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Orange+Juice%2C+No+Pulp",
+    "Walmart": "https://www.walmart.com/search?q=Orange+Juice%2C+No+Pulp",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Orange+Juice%2C+No+Pulp&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Orange+Juice%2C+No+Pulp",
+    "Aldi": "https://www.aldi.us/results?q=Orange+Juice%2C+No+Pulp"
+   }
+  },
+  {
+   "title": "Greek Yogurt, Plain",
+   "keywords": [
+    "yogurt",
+    "greek yogurt"
+   ],
+   "base": 4.99,
+   "sizes": {
+    "Giant": "32 oz",
+    "Walmart": "32 oz",
+    "Amazon Fresh": "32 oz",
+    "Harris Teeter": "32 oz",
+    "Aldi": "32 oz"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Greek+Yogurt%2C+Plain",
+    "Walmart": "https://www.walmart.com/search?q=Greek+Yogurt%2C+Plain",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Greek+Yogurt%2C+Plain&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Greek+Yogurt%2C+Plain",
+    "Aldi": "https://www.aldi.us/results?q=Greek+Yogurt%2C+Plain"
+   }
+  },
+  {
+   "title": "Roma Tomatoes",
+   "keywords": [
+    "tomato",
+    "tomatoes"
+   ],
+   "base": 1.49,
+   "sizes": {
+    "Giant": "per lb",
+    "Walmart": "per lb",
+    "Amazon Fresh": "per lb",
+    "Harris Teeter": "per lb",
+    "Aldi": "2 lb"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Roma+Tomatoes",
+    "Walmart": "https://www.walmart.com/search?q=Roma+Tomatoes",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Roma+Tomatoes&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Roma+Tomatoes",
+    "Aldi": "https://www.aldi.us/results?q=Roma+Tomatoes"
+   }
+  },
+  {
+   "title": "Yellow Onions",
+   "keywords": [
+    "onion",
+    "onions"
+   ],
+   "base": 2.99,
+   "sizes": {
+    "Giant": "3 lb bag",
+    "Walmart": "3 lb bag",
+    "Amazon Fresh": "3 lb bag",
+    "Harris Teeter": "3 lb bag",
+    "Aldi": "3 lb bag"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Yellow+Onions",
+    "Walmart": "https://www.walmart.com/search?q=Yellow+Onions",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Yellow+Onions&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Yellow+Onions",
+    "Aldi": "https://www.aldi.us/results?q=Yellow+Onions"
+   }
+  },
+  {
+   "title": "Russet Potatoes",
+   "keywords": [
+    "potato",
+    "potatoes"
+   ],
+   "base": 4.49,
+   "sizes": {
+    "Giant": "5 lb bag",
+    "Walmart": "5 lb bag",
+    "Amazon Fresh": "5 lb bag",
+    "Harris Teeter": "5 lb bag",
+    "Aldi": "5 lb bag"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Russet+Potatoes",
+    "Walmart": "https://www.walmart.com/search?q=Russet+Potatoes",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Russet+Potatoes&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Russet+Potatoes",
+    "Aldi": "https://www.aldi.us/results?q=Russet+Potatoes"
+   }
+  },
+  {
+   "title": "Ground Coffee, Medium Roast",
+   "keywords": [
+    "coffee"
+   ],
+   "base": 8.99,
+   "sizes": {
+    "Giant": "11.3 oz",
+    "Walmart": "12 oz",
+    "Amazon Fresh": "12 oz",
+    "Harris Teeter": "11.3 oz",
+    "Aldi": "12 oz"
+   },
+   "urls": {
+    "Giant": "https://giantfood.com/product-search/Ground+Coffee%2C+Medium+Roast",
+    "Walmart": "https://www.walmart.com/search?q=Ground+Coffee%2C+Medium+Roast",
+    "Amazon Fresh": "https://www.amazon.com/s?k=Ground+Coffee%2C+Medium+Roast&i=amazonfresh",
+    "Harris Teeter": "https://www.harristeeter.com/search?query=Ground+Coffee%2C+Medium+Roast",
+    "Aldi": "https://www.aldi.us/results?q=Ground+Coffee%2C+Medium+Roast"
+   }
+  }
+ ]
+}
