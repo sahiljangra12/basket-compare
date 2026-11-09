@@ -100,3 +100,26 @@ def test_basket_and_order(client):
     assert r["best_single_store"] and r["split"]["total"] > 0
     o = client.post("/api/order/instacart", json=items).json()
     assert o["url"].startswith("https://www.instacart.com")
+
+
+def test_typo_correction_and_catalog_search():
+    from app.catalog import correct, find
+    assert correct("graps") == "grapes"
+    assert correct("bananna") == "banana"
+    assert find("chiken")[0]["name"] == "Chicken breast"
+    assert find("milk")[0]["name"] == "Whole milk"
+    assert find("toilet paper")[0]["name"] == "Toilet paper"
+    assert len(__import__("app.catalog", fromlist=["catalog"]).catalog()["items"]) >= 150
+
+
+def test_search_typo_through_api(client):
+    body = client.get("/api/search", params={"q": "graps", "zip": "21218"}).json()
+    assert body["offers"] and "grapes" in body["offers"][0]["title"].lower()
+    assert body["guide"]["icon"].startswith("icons/")
+
+
+def test_store_links_use_verified_formats():
+    from app.adapters.linkouts import search_url
+    assert search_url("Harris Teeter", "grapes").endswith("searchType=default_search")
+    assert search_url("Aldi", "grapes") == "https://www.aldi.us/store/aldi/s?k=grapes"
+    assert search_url("Walmart", "red grapes") == "https://www.walmart.com/search?q=red+grapes"

@@ -1,219 +1,297 @@
-import * as local from "./engine.js?v=5";
+import * as E from "./engine.js?v=6";
 
-const $ = (s) => document.querySelector(s);
+const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const money = (n) => "$" + Number(n).toFixed(2);
 const MD_ZIP = /^2(0[6-9]|1\d)\d{2}$/;
+const POPULAR = ["red-seedless-grapes", "bananas", "whole-milk", "large-eggs", "chicken-breast", "strawberries",
+  "hass-avocados", "white-bread", "long-grain-white-rice", "ground-beef-80-20", "russet-potatoes", "ground-coffee"];
+const CAT_ICON = { Fruit: "grapes", Vegetables: "broccoli", "Dairy & eggs": "glass-of-milk", "Meat & seafood": "cut-of-meat",
+  Bakery: "bread", Pantry: "canned-food", Snacks: "popcorn", Drinks: "beverage-box", Frozen: "ice-cream",
+  Household: "roll-of-paper", "Personal care": "soap", "Baby & pet": "paw-prints" };
+const EXT = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3 4 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 
-// Use the Python server when the page is served by it; otherwise (GitHub Pages) run in the browser.
-let server = false;
-try {
-  const r = await fetch("api/status", { headers: { Accept: "application/json" } });
-  if (r.ok && (r.headers.get("content-type") || "").includes("json")) {
-    const s = await r.json();
-    server = true;
-    $("#sample-note").hidden = !s.demo_mode;
-  }
-} catch { /* static hosting */ }
-if (!server) $("#sample-note").hidden = false;
-
-async function post(path, body) {
-  const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.detail || "The price service didn't respond. Try again in a moment.");
-  return data;
-}
-
-const api = {
-  async search(q, zip) {
-    if (!server) return local.search(q, zip);
-    const r = await fetch(`api/search?q=${encodeURIComponent(q)}&zip=${encodeURIComponent(zip)}`);
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(data.detail || "The price service didn't respond. Try again in a moment.");
-    return data;
-  },
-  basket: (zip, items) => (server ? post("api/basket", { zip, items }) : local.basket(zip, items)),
-  async order(zip, items) {
-    if (!server) return { url: local.instacartLink(items) };
-    return post("api/order/instacart", { zip, items });
-  },
+// ---------- state ----------
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
+let basket = store.get("bc-basket", []);
+let zip = store.get("bc-zip", "21218");
+let live = false; // true when a Basket Compare server with real store connections is answering
 
-// ---- state ----
-let basket = [];
-try { basket = JSON.parse(localStorage.getItem("basket") || "[]"); } catch { basket = []; }
-try { const z = localStorage.getItem("zip"); if (z) $("#zip").value = z; } catch {}
-const save = () => { try { localStorage.setItem("basket", JSON.stringify(basket)); } catch {} };
-const zip = () => $("#zip").value.trim();
-let current = "";
+await E.load();
+try {
+  const r = await fetch("api/status");
+  if (r.ok && (r.headers.get("content-type") || "").includes("json")) live = !(await r.json()).demo_mode;
+} catch { /* static hosting: run in the browser */ }
+$("#sample-note").hidden = live;
+$("#zip").value = zip;
 
-$("#receipt-date").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+// ---------- prices (browser samples, or the server's live prices) ----------
+const cache = new Map();
+async function offersFor(item) {
+  if (!live) return E.offers(item, zip);
+  const key = item.id + zip;
+  if (!cache.has(key)) {
+    const r = await fetch(`api/search?q=${encodeURIComponent(item.name)}&zip=${zip}`).then((x) => x.json());
+    cache.set(key, (r.offers || []).map((o) => ({ ...o, url: o.url || item.links[o.retailer] })));
+  }
+  return cache.get(key);
+}
+const cheapest = (item) => (live ? null : E.offers(item, zip)[0]);
 
-// ---- shelf tags ----
-function priceHTML(p) {
+function priceHTML(p, perUnit = "") {
   const [d, c] = Number(p).toFixed(2).split(".");
-  return `<span class="price" aria-label="${money(p)}"><span class="cur">$</span>${d}<span class="cents">${c}</span></span>`;
+  return `<span class="price" aria-label="${money(p)}${perUnit ? " per " + perUnit : ""}"><sup>$</sup>${d}<span class="cents">${c}</span>${perUnit ? `<span class="per">/${perUnit}</span>` : ""}</span>`;
+}
+const per = (o) => (o.unit_price != null ? `${money(o.unit_price)}/${o.unit === "item" ? "ea" : o.unit}` : "");
+
+// ---------- small UI helpers ----------
+let toastTimer;
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 1800);
+}
+function show(html, focus = false) {
+  const v = $("#view");
+  v.innerHTML = html;
+  v.classList.remove("enter"); void v.offsetWidth; v.classList.add("enter");
+  if (focus) v.focus({ preventScroll: true });
+  window.scrollTo(0, 0);
+}
+function tile(item) {
+  const c = cheapest(item);
+  return `<li><a class="tile" href="#/p/${item.id}">
+    <img src="${item.icon}" alt="" loading="lazy" width="56" height="56">
+    <span class="tile-name">${esc(item.name)}</span>
+    <span class="tile-size">${esc(item.size)}</span>
+    <span class="tile-price">${c ? `from <strong>${money(c.price)}</strong> at ${esc(c.retailer)}` : "Compare prices"}</span>
+  </a></li>`;
 }
 
-function tagHTML(o, i) {
-  const best = i === 0 && o.unit_price != null;
-  const sale = o.regular_price && o.regular_price > o.price;
-  const where = o.price_scope === "online" ? "Online price" : "In-store price";
-  const meta = [o.size, o.store].filter(Boolean).map(esc).join(", ");
-  // Stock photos are scenes (fill the frame); retailer packshots sit on white (show whole pack).
-  const img = o.image
-    ? `<div class="tag-photo ${o.image_credit || o.source === "demo" ? "scene" : "pack"}"><img src="${esc(o.image)}" alt="${esc(o.title)}" loading="lazy" onerror="this.parentNode.remove()"></div>`
-    : "";
-  return `
-  <article class="tag${best ? " best" : ""}${sale ? " sale" : ""}">
-    <div class="tag-store">${esc(o.retailer)} <small>${best ? `Lowest per ${esc(o.unit)}` : sale ? "On sale" : where}</small></div>
-    ${img}
-    <div class="tag-body">
-      <div class="unit-box">${o.unit_price != null ? `Unit price<strong>${money(o.unit_price)}</strong>per ${esc(o.unit)}` : "Unit price not listed"}</div>
-      <div class="price-box">${priceHTML(o.price)}${sale ? `<span class="was">was <s>${money(o.regular_price)}</s></span>` : ""}</div>
-    </div>
-    <div class="tag-foot">
-      <p class="tag-title">${esc(o.title)}</p>
-      <p class="tag-meta">${meta}</p>
-      <a class="order" href="${esc(o.url)}" target="_blank" rel="noopener sponsored">Order at ${esc(o.retailer)}</a>
-    </div>
-  </article>`;
+// ---------- categories ----------
+$("#cats").innerHTML = E.categories().map((c) =>
+  `<a href="#/c/${encodeURIComponent(c)}"><img src="icons/${CAT_ICON[c] || "basket"}.svg" alt="" width="22" height="22">${esc(c)}</a>`).join("");
+
+// ---------- views ----------
+function home() {
+  show(`<h1 class="view-title">Popular this week</h1>
+    <p class="view-sub">Tap an item to compare every store's price, or search for anything above.</p>
+    <ul class="tiles">${POPULAR.map(E.byId).filter(Boolean).map(tile).join("")}</ul>`);
 }
 
-function productCard(q, data) {
-  const g = data.guide || {};
-  const offers = data.offers;
-  const b = offers[0];
-  const stores = new Set(offers.map((o) => o.retailer)).size;
-  const sameUnit = offers.filter((o) => o.unit === b.unit && o.unit_price != null).map((o) => o.unit_price);
-  const hi = sameUnit.length ? Math.max(...sameUnit) : null;
-  const credit = g.credit
-    ? `<figcaption>Photo: <a href="${esc(g.credit.page)}" target="_blank" rel="noopener">${esc(g.credit.author)}</a>, ${esc(g.credit.license)}</figcaption>`
-    : "";
-  const photo = g.image
-    ? `<figure class="product-photo"><img src="${esc(g.image)}" alt="${esc(g.title)}" onerror="this.closest('figure').remove()">${credit}</figure>`
-    : "";
-  return `
-  <section class="product${photo ? "" : " no-photo"}">
-    ${photo}
-    <div class="product-info">
-      <h2>${esc(q.charAt(0).toUpperCase() + q.slice(1))}</h2>
-      ${g.description ? `<p class="product-desc">${esc(g.description)}</p>` : ""}
-      ${g.tip ? `<p class="product-tip"><strong>Buying tip</strong> ${esc(g.tip)}</p>` : ""}
-      <div class="product-facts">
-        ${b.unit_price != null ? `<div><span>Lowest</span><strong>${money(b.unit_price)}<small>/${esc(b.unit)}</small></strong><em>at ${esc(b.retailer)}</em></div>` : ""}
-        ${hi != null && hi > b.unit_price ? `<div><span>Highest</span><strong>${money(hi)}<small>/${esc(b.unit)}</small></strong><em>${Math.round((hi / b.unit_price - 1) * 100)}% more</em></div>` : ""}
-        <div><span>Compared</span><strong>${offers.length}</strong><em>prices at ${stores} stores</em></div>
-      </div>
-      <button class="add-btn" id="add" type="button">Add to basket</button>
-    </div>
-  </section>`;
+function category(name) {
+  const list = E.items().filter((i) => i.category === name);
+  show(`<h1 class="view-title">${esc(name)}</h1><p class="view-sub">${list.length} items</p>
+    <ul class="tiles">${list.map(tile).join("")}</ul>`);
 }
 
-function inBasket(q) { return basket.some((b) => b.query.toLowerCase() === q.toLowerCase()); }
-
-function renderAddButton() {
-  const btn = $("#add");
-  if (!btn) return;
-  const has = inBasket(current);
-  btn.textContent = has ? "Added to basket" : "Add to basket";
-  btn.classList.toggle("added", has);
-}
-
-async function runSearch(q) {
-  q = q.trim();
-  const out = $("#results");
-  if (q.length < 2) return;
-  if (!MD_ZIP.test(zip())) {
-    out.innerHTML = `<div class="problem">Enter a 5-digit Maryland ZIP code, between 20600 and 21999, in the box at the top.</div>`;
-    $("#zip").focus();
+function results(q) {
+  const res = E.search(q, 24);
+  $("#q").value = q;
+  if (!res.length) {
+    const near = E.suggest(q);
+    show(`<div class="empty"><h2>No match for “${esc(q)}”</h2>
+      <p>${near.length ? "Did you mean one of these?" : "Try a simpler word, like “milk” or “apples”, or browse an aisle above."}</p>
+      ${near.length ? `<ul class="tiles">${near.map(tile).join("")}</ul>` : ""}</div>`);
     return;
   }
-  current = q;
-  document.querySelectorAll("#quick button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.q === q.toLowerCase())));
-  out.innerHTML = `<div class="loading">Checking stores near ${esc(zip())}…</div>`;
-  try { localStorage.setItem("zip", zip()); } catch {}
-  try {
-    const data = await api.search(q, zip());
-    if (!data.offers.length) {
-      out.innerHTML = `<div class="problem">No prices found for “${esc(q)}”. Try a shorter name, like “grapes” instead of “red grapes 2lb”.</div>`;
-    } else {
-      out.innerHTML = productCard(q, data) + `<div class="shelf">${data.offers.map(tagHTML).join("")}</div>`;
-      $("#add").onclick = () => { if (!inBasket(q)) { basket.push({ query: q, quantity: 1 }); save(); renderBasket(); } renderAddButton(); };
-      renderAddButton();
-    }
-    if (data.unpriced.length) {
-      out.insertAdjacentHTML("beforeend", `
-        <section class="unpriced">
-          <h3>Also worth checking</h3>
-          <p>These stores don't share prices yet, so open them directly.</p>
-          <ul>${data.unpriced.map((l) => `<li><a href="${esc(l.url)}" target="_blank" rel="noopener">Search ${esc(l.retailer)}</a><span>${esc(l.reason)}</span></li>`).join("")}</ul>
-        </section>`);
-    }
-    if (data.errors?.length) out.insertAdjacentHTML("beforeend", `<div class="problem">${data.errors.map(esc).join(" ")}</div>`);
-  } catch (e) {
-    out.innerHTML = `<div class="problem">${esc(e.message)}</div>`;
-  }
+  const fixed = res[0].fuzzy && !res.some((r) => !r.fuzzy);
+  show(`<h1 class="view-title">${res.length} result${res.length > 1 ? "s" : ""} for “${esc(q)}”</h1>
+    ${fixed ? `<p class="did-you-mean">Showing matches for <strong>${esc(res[0].item.name.toLowerCase())}</strong> and similar.</p>` : ""}
+    <ul class="tiles">${res.map((r) => tile(r.item)).join("")}</ul>`);
 }
 
-// ---- receipt ----
-function renderBasket() {
-  $("#basket-empty").hidden = basket.length > 0;
-  $("#basket-list").innerHTML = basket.map((b, i) => `
-    <li><span class="item-name">${esc(b.query)}</span>
-      <span class="qty">
-        <button type="button" data-i="${i}" data-d="-1" aria-label="One less ${esc(b.query)}">−</button>
-        <output>${b.quantity}</output>
-        <button type="button" data-i="${i}" data-d="1" aria-label="One more ${esc(b.query)}">+</button>
-        <button type="button" class="remove" data-r="${i}" aria-label="Remove ${esc(b.query)}">×</button>
-      </span></li>`).join("");
-  renderAddButton();
-  priceBasket();
+async function product(id) {
+  const item = E.byId(id);
+  if (!item) return home();
+  const inB = basket.some((b) => b.id === id);
+  show(`<a class="back" href="#/" id="back">‹ Back</a>
+    <section class="product">
+      <div class="product-main">
+        <div class="product-icon"><img src="${item.icon}" alt=""></div>
+        <div><h1>${esc(item.name)}</h1><p class="product-desc">${esc(item.description)}, ${esc(item.size)}</p></div>
+      </div>
+      <button class="add${inB ? " added" : ""}" id="add" type="button">${inB ? "In your basket" : "Add to basket"}</button>
+    </section>
+    <div class="summary" id="summary">Checking prices near ${esc(zip)}…</div>
+    <ul class="prices" id="prices"></ul>
+    <p class="link-note">Order buttons open that store's page for this item${live ? "" : " (its search results, until the store connection is live)"}.</p>
+    <section class="related"><h2>More in ${esc(item.category)}</h2>
+      <ul class="tiles">${E.items().filter((i) => i.category === item.category && i.id !== id).slice(0, 6).map(tile).join("")}</ul>
+    </section>`, true);
+  $("#back").onclick = (e) => { if (cameFromApp) { e.preventDefault(); history.back(); } };
+  $("#add").onclick = () => { addToBasket(item); $("#add").textContent = "In your basket"; $("#add").classList.add("added"); };
+
+  const offers = await offersFor(item);
+  if (!offers.length) { $("#summary").textContent = "No store near this ZIP has a price for this item right now."; return; }
+  const b = offers[0], hi = offers[offers.length - 1];
+  const gap = hi.unit_price && b.unit_price ? Math.round((hi.unit_price / b.unit_price - 1) * 100) : 0;
+  $("#summary").innerHTML = `<span>Cheapest at <strong>${esc(b.retailer)}</strong>, ${per(b) || money(b.price)}</span>
+    ${gap > 0 ? `<span>Up to <strong>${gap}% more</strong> elsewhere</span>` : ""}
+    <span>${offers.length} stores near ${esc(zip)}</span>`;
+  const byWeight = /^per /.test(item.size); // sold by the pound: the price already is the unit price
+  $("#prices").innerHTML = offers.map((o, i) => `
+    <li class="row${i === 0 ? " best" : ""}">
+      <div class="store">${esc(o.retailer)}${i === 0 ? '<span class="badge">Cheapest</span>' : ""}
+        <span class="scope">${o.price_scope === "online" ? "Online price" : "In-store price"}${o.size && o.size !== item.size ? `, ${esc(o.size)}` : ""}</span></div>
+      <div class="unit">${byWeight ? "" : o.unit_price != null ? `<strong>${money(o.unit_price)}</strong>per ${esc(o.unit)}` : ""}</div>
+      ${priceHTML(o.price, byWeight ? item.size.slice(4) : "")}
+      <a class="order" href="${esc(o.url)}" target="_blank" rel="noopener sponsored">Order at ${esc(o.retailer)} ${EXT}</a>
+    </li>`).join("");
 }
 
-$("#basket-list").addEventListener("click", (e) => {
-  const t = e.target.closest("button");
-  if (!t) return;
-  if (t.dataset.r != null) basket.splice(+t.dataset.r, 1);
-  else { const b = basket[+t.dataset.i]; b.quantity = Math.max(1, b.quantity + +t.dataset.d); }
-  save(); renderBasket();
+function route() {
+  closeSuggest();
+  const [, kind, arg] = decodeURIComponent(location.hash).match(/^#\/(\w)\/(.+)$/) || [];
+  document.querySelectorAll("#cats a").forEach((a) => a.toggleAttribute("aria-current", kind === "c" && a.textContent === arg));
+  if (kind !== "s") $("#q").value = "";
+  if (kind === "p") return product(arg);
+  if (kind === "c") return category(arg);
+  if (kind === "s") return results(arg);
+  home();
+}
+let cameFromApp = false;
+window.addEventListener("hashchange", () => { cameFromApp = true; route(); });
+
+// ---------- search box with suggestions ----------
+const input = $("#q"), list = $("#suggest");
+let active = -1, current = [], t;
+
+function highlight(name, q) {
+  const n = E.norm(q);
+  const i = name.toLowerCase().indexOf(n);
+  return i < 0 || !n ? esc(name) : esc(name.slice(0, i)) + "<mark>" + esc(name.slice(i, i + n.length)) + "</mark>" + esc(name.slice(i + n.length));
+}
+function closeSuggest() {
+  clearTimeout(t); list.hidden = true; active = -1;
+  input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant");
+  list.querySelectorAll('[aria-selected="true"]').forEach((o) => o.setAttribute("aria-selected", "false"));
+}
+function renderSuggest() {
+  const q = input.value.trim();
+  if (!q) return closeSuggest();
+  const res = E.search(q, 7);
+  current = res.map((r) => r.item);
+  let note = "";
+  if (!current.length) { current = E.suggest(q); note = current.length ? `No exact match. Did you mean:` : `No match for “${esc(q)}”`; }
+  else if (res[0].fuzzy && !res.some((r) => !r.fuzzy)) note = "Did you mean:";
+  list.innerHTML = (note ? `<li class="s-note" role="presentation">${note}</li>` : "") + current.map((item, i) => {
+    const c = cheapest(item);
+    return `<li role="option" id="opt-${i}" data-id="${item.id}" aria-selected="false">
+      <img src="${item.icon}" alt="" width="32" height="32">
+      <span class="s-name">${highlight(item.name, q)}<span class="s-meta">${esc(item.size)}, ${esc(item.category)}</span></span>
+      <span class="s-price">${c ? money(c.price) : ""}</span></li>`;
+  }).join("");
+  list.hidden = false; input.setAttribute("aria-expanded", "true"); active = -1;
+}
+function move(d) {
+  const opts = [...list.querySelectorAll('[role="option"]')];
+  if (!opts.length) return;
+  active = (active + d + opts.length) % opts.length;
+  opts.forEach((o, i) => o.setAttribute("aria-selected", String(i === active)));
+  input.setAttribute("aria-activedescendant", opts[active].id);
+  opts[active].scrollIntoView({ block: "nearest" });
+}
+input.addEventListener("input", () => { clearTimeout(t); t = setTimeout(renderSuggest, 40); });
+input.addEventListener("focus", () => input.value && renderSuggest());
+input.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown") { e.preventDefault(); list.hidden ? renderSuggest() : move(1); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); move(-1); }
+  else if (e.key === "Escape") closeSuggest();
+});
+list.addEventListener("mousedown", (e) => e.preventDefault()); // keep focus so the click lands
+list.addEventListener("click", (e) => {
+  const li = e.target.closest('[role="option"]');
+  if (li) { input.blur(); location.hash = `#/p/${li.dataset.id}`; }
+});
+document.addEventListener("click", (e) => { if (!e.target.closest(".search")) closeSuggest(); });
+$("#search-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const q = input.value.trim();
+  if (!q) return;
+  const opt = list.hidden ? null : list.querySelector('[aria-selected="true"]');
+  input.blur(); closeSuggest();
+  if (opt) { location.hash = `#/p/${opt.dataset.id}`; return; }
+  const res = E.search(q, 24);
+  // One clear hit: go straight to its prices. Otherwise list the matches.
+  location.hash = res.length === 1 || (res.length && E.norm(res[0].item.name) === E.norm(q)) ? `#/p/${res[0].item.id}` : `#/s/${encodeURIComponent(q)}`;
 });
 
-async function priceBasket() {
-  const box = $("#basket-result");
-  if (!basket.length || !MD_ZIP.test(zip())) { box.innerHTML = ""; return; }
-  try {
-    const r = await api.basket(zip(), basket);
-    const lines = r.stores.map((s) => `
-      <div class="line${s.retailer === r.best_single_store ? " win" : ""}">
-        <span>${esc(s.retailer)}${s.complete ? "" : ` <span class="gap">missing ${s.missing.length}</span>`}</span>
-        <span class="dots"></span><span class="amt">${money(s.total)}</span>
-      </div>`).join("");
-    const split = r.split.retailers.length > 1 && r.savings_vs_best_single > 0
-      ? `<p class="split">Shop at ${r.split.retailers.map(esc).join(" and ")} instead and pay ${money(r.split.total)}, saving ${money(r.savings_vs_best_single)}.</p>` : "";
-    const amounts = r.split.items.map((i) => esc(i.query) + (i.amount ? ` ${esc(i.amount)}${i.quantity > 1 ? " × " + i.quantity : ""}` : "")).join(", ");
-    box.innerHTML = `
-      <div class="totals">
-        <h3>Whole basket at each store</h3>
-        ${lines}${split}
-        <p class="fine">Each store is priced for the same amounts (${amounts}) at its best unit price, so pack sizes don't skew the total.</p>
-        <button class="order-all" id="order-all" type="button">Order the basket on Instacart</button>
-      </div>`;
-    $("#order-all").onclick = async () => {
-      try { const o = await api.order(zip(), basket); window.open(o.url, "_blank", "noopener"); }
-      catch (e) { box.insertAdjacentHTML("beforeend", `<p class="fine">${esc(e.message)}</p>`); }
-    };
-  } catch (e) {
-    box.innerHTML = `<p class="fine">${esc(e.message)}</p>`;
-  }
-}
-
-// ---- wiring ----
-$("#search-form").addEventListener("submit", (e) => { e.preventDefault(); runSearch($("#q").value); });
-$("#quick").addEventListener("click", (e) => {
-  const q = e.target.closest("button")?.dataset.q;
-  if (q) { $("#q").value = q; runSearch(q); }
+// ---------- ZIP ----------
+$("#zip").addEventListener("change", (e) => {
+  const v = e.target.value.trim();
+  if (!MD_ZIP.test(v)) { e.target.value = zip; toast("Enter a Maryland ZIP code, 20600 to 21999"); return; }
+  zip = v; store.set("bc-zip", zip); cache.clear(); toast(`Showing prices near ${zip}`); route(); renderBasket();
 });
-$("#zip").addEventListener("change", () => { if (current) runSearch(current); priceBasket(); });
 
+// ---------- basket ----------
+const fab = $("#basket-fab"), drawer = $("#drawer"), scrim = $("#scrim");
+function addToBasket(item) {
+  const line = basket.find((b) => b.id === item.id);
+  line ? line.qty++ : basket.push({ id: item.id, qty: 1 });
+  store.set("bc-basket", basket); renderBasket();
+  fab.classList.remove("bump"); void fab.offsetWidth; fab.classList.add("bump");
+  toast(`Added ${item.name.toLowerCase()} to your basket`);
+}
+function openDrawer(open) {
+  drawer.classList.toggle("open", open); drawer.setAttribute("aria-hidden", String(!open));
+  fab.setAttribute("aria-expanded", String(open));
+  if (open) { scrim.hidden = false; requestAnimationFrame(() => scrim.classList.add("on")); $("#close-drawer").focus(); }
+  else { scrim.classList.remove("on"); setTimeout(() => (scrim.hidden = true), 200); }
+}
+fab.onclick = () => openDrawer(true);
+scrim.onclick = () => openDrawer(false);
+$("#close-drawer").onclick = () => { openDrawer(false); fab.focus(); };
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && drawer.classList.contains("open")) openDrawer(false); });
+
+async function renderBasket() {
+  const count = basket.reduce((n, b) => n + b.qty, 0);
+  fab.hidden = !count;
+  $("#fab-count").textContent = count;
+  const box = $("#basket");
+  if (!count) { box.innerHTML = `<p class="b-empty">Your basket is empty. Add items to see which store is cheapest for the whole list.</p>`; openDrawer(false); return; }
+
+  const lines = [];
+  for (const b of basket) { const item = E.byId(b.id); if (item) lines.push({ ...b, item, offers: await offersFor(item) }); }
+  const r = E.priceBasket(basket, zip, (item) => lines.find((l) => l.id === item.id)?.offers || []);
+  $("#fab-total").textContent = money(r.splitTotal);
+
+  box.innerHTML = `
+    <ul class="b-lines">${r.lines.map((l) => `
+      <li class="b-line">
+        <img src="${l.item.icon}" alt="">
+        <div><div class="b-name">${esc(l.item.name)}</div>
+          <div class="b-where">${l.best ? `${money(l.best.price)} at ${esc(l.best.retailer)}. <a href="${esc(l.best.url)}" target="_blank" rel="noopener sponsored">Order</a>` : "No price yet"}</div></div>
+        <div class="qty">
+          <button type="button" data-id="${l.id}" data-d="-1" aria-label="One less ${esc(l.item.name)}">−</button>
+          <output>${l.qty}</output>
+          <button type="button" data-id="${l.id}" data-d="1" aria-label="One more ${esc(l.item.name)}">+</button>
+        </div>
+      </li>`).join("")}</ul>
+    <p class="b-sec">Whole basket at one store</p>
+    ${r.stores.map((s) => `<div class="line${s.store === r.bestStore ? " win" : ""}">
+      <span>${esc(s.store)}${s.missing.length ? ` <span class="miss">missing ${s.missing.length}</span>` : ""}</span>
+      <span class="dots"></span><span class="amt">${money(s.total)}</span></div>`).join("")}
+    ${r.splitStores.length > 1 && r.savings > 0
+      ? `<p class="tip">Buy each item where it's cheapest (${r.splitStores.map(esc).join(" and ")}) and pay <strong>${money(r.splitTotal)}</strong>, saving ${money(r.savings)}.</p>`
+      : r.bestStore ? `<p class="tip"><strong>${esc(r.bestStore)}</strong> is cheapest for everything on your list.</p>` : ""}
+    <p class="fine">Totals use each store's price for the usual pack size.</p>
+    <button class="clear" id="clear" type="button">Empty basket</button>`;
+}
+$("#basket").addEventListener("click", (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  if (btn.id === "clear") { basket = []; }
+  else if (btn.dataset.id) {
+    const line = basket.find((b) => b.id === btn.dataset.id);
+    line.qty += +btn.dataset.d;
+    if (line.qty < 1) basket = basket.filter((b) => b !== line);
+  } else return;
+  store.set("bc-basket", basket); renderBasket();
+});
+
+route();
 renderBasket();

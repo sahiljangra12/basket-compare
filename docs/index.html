@@ -2,83 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Basket Compare — Maryland grocery prices</title>
   <meta name="description" content="Compare grocery prices across Maryland stores by unit price and find the cheapest store for your whole list.">
   <meta name="theme-color" content="#0e6b3a">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='7' width='26' height='18' rx='3' fill='%23ffd23f'/%3E%3Ccircle cx='9' cy='16' r='2.5' fill='%230e6b3a'/%3E%3C/svg%3E">
+  <link rel="icon" href="icons/basket.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Barlow+Condensed:wght@600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
-  <p id="sample-note" class="sample-note" hidden>
-    You're seeing sample prices while store connections are being set up. Real prices will replace them automatically.
-  </p>
-
-  <header class="aisle">
-    <div class="wrap aisle-inner">
-      <a class="brand" href="./" aria-label="Basket Compare home">
-        <svg class="brand-tag" viewBox="0 0 40 28" aria-hidden="true"><path d="M8 1h29a2 2 0 0 1 2 2v22a2 2 0 0 1-2 2H8L1 14z" fill="#ffd23f"/><circle cx="9" cy="14" r="2.6" fill="#0e6b3a"/></svg>
+  <header class="bar">
+    <div class="wrap bar-inner">
+      <a class="brand" href="#/" aria-label="Basket Compare home">
+        <img src="icons/basket.svg" alt="" width="30" height="30">
         <span>Basket Compare</span>
       </a>
-      <label class="zip">
-        <span>Shopping near</span>
-        <input id="zip" inputmode="numeric" maxlength="5" value="21218" aria-label="Maryland ZIP code">
+
+      <form class="search" id="search-form" role="search" autocomplete="off">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="m16.5 16.5 4 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <input id="q" type="search" placeholder="Search groceries, like grapes or milk" aria-label="Search groceries"
+               role="combobox" aria-expanded="false" aria-controls="suggest" aria-autocomplete="list" spellcheck="false">
+        <ul id="suggest" class="suggest" role="listbox" hidden></ul>
+      </form>
+
+      <label class="zip" title="Your Maryland ZIP code">
+        <span class="visually-hidden">Maryland ZIP code</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z" fill="currentColor"/><circle cx="12" cy="10" r="2.6" fill="#0e6b3a"/></svg>
+        <input id="zip" inputmode="numeric" maxlength="5" value="21218">
       </label>
     </div>
+    <nav class="wrap cats" id="cats" aria-label="Categories"></nav>
   </header>
 
-  <section class="hero">
-    <div class="wrap">
-      <h1>What's on your list?</h1>
-      <p class="lede">Every Maryland store's price, side by side, compared per pound, per ounce or per item.</p>
-      <form id="search-form" class="search" role="search">
-        <input id="q" type="search" placeholder="Try grapes, milk or chicken breast" autocomplete="off" aria-label="Search for a grocery item">
-        <button type="submit">Compare prices</button>
-      </form>
-      <div class="picks" id="quick" aria-label="Popular items">
-        <button data-q="grapes">Grapes</button>
-        <button data-q="milk">Milk</button>
-        <button data-q="eggs">Eggs</button>
-        <button data-q="bananas">Bananas</button>
-        <button data-q="chicken breast">Chicken breast</button>
-        <button data-q="rice">Rice</button>
-        <button data-q="coffee">Coffee</button>
-        <button data-q="strawberries">Strawberries</button>
-      </div>
-    </div>
-  </section>
+  <p class="sample-note" id="sample-note" hidden>Sample prices for now. Real store prices replace them once the store connections are live.</p>
 
-  <main class="wrap layout">
-    <section class="results-col" aria-live="polite">
-      <div id="results">
-        <div class="shelf-empty">
-          <p>Search for an item and each store's price shows up here as a shelf tag, cheapest per unit first.</p>
-        </div>
-      </div>
-    </section>
+  <main class="wrap" id="view" tabindex="-1"></main>
 
-    <aside class="receipt-col" aria-label="Your basket">
-      <div class="receipt">
+  <button class="basket-fab" id="basket-fab" type="button" aria-controls="drawer" aria-expanded="false" hidden>
+    <img src="icons/basket.svg" alt="" width="26" height="26">
+    <span id="fab-count">0</span>
+    <strong id="fab-total"></strong>
+  </button>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="drawer" id="drawer" aria-label="Your basket" aria-hidden="true">
+    <div class="receipt">
+      <div class="receipt-head">
         <h2>Your basket</h2>
-        <p class="receipt-sub" id="receipt-date"></p>
-        <p class="receipt-empty" id="basket-empty">Add items from your searches to see which store is cheapest for the whole list.</p>
-        <ul id="basket-list"></ul>
-        <div id="basket-result"></div>
+        <button class="close" id="close-drawer" type="button" aria-label="Close basket">×</button>
       </div>
-    </aside>
-  </main>
-
-  <footer class="foot">
-    <div class="wrap">
-      <p>Prices come from store data and refresh every few hours. Online and in-store prices can differ, so check the total at checkout.</p>
-      <p><a href="https://github.com/sahiljangra12/basket-compare">Source on GitHub</a></p>
-      <p><a href="credits.html">Photo credits</a></p>
+      <div id="basket"></div>
     </div>
+  </aside>
+
+  <footer class="wrap foot">
+    <p>Prices refresh every few hours. Online and in-store prices can differ, so check your total at checkout.</p>
+    <p><a href="https://github.com/sahiljangra12/basket-compare">Source on GitHub</a>. Illustrations: Fluent Emoji by Microsoft (MIT).</p>
   </footer>
 
-  <script type="module" src="app.js?v=5"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="app.js?v=6"></script>
 </body>
 </html>

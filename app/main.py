@@ -15,7 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from . import config
 from .adapters import instacart, linkouts
 from .adapters.demo import DemoSource
-from .adapters.guide import GUIDE
+from .catalog import correct, find
 from .adapters.kroger import KrogerSource
 from .adapters.walmart import WalmartSource
 from .cache import PriceCache
@@ -68,22 +68,22 @@ async def _search_source(source, query: str, zip_code: str) -> tuple[list[Offer]
 
 
 async def find_offers(query: str, zip_code: str) -> tuple[list[Offer], list[str]]:
+    query = correct(query) or query  # "graps" -> "grapes" before asking any store
     results = await asyncio.gather(*(_search_source(s, query, zip_code) for s in active_sources()))
     offers = [o for found, _ in results for o in found]
     errors = [err for _, err in results if err]
     return rank(relevant(offers, query) or offers), errors
 
 
-def product_guide(offers: list[Offer]) -> dict | None:
-    """Photo, description and buying tip for the product at the top of the results."""
-    if not offers:
-        return None
-    top = offers[0]
-    g = GUIDE.get(top.title)
-    if g:
-        return {"title": top.title, "image": g["photo"]["src"], "credit": {k: v for k, v in g["photo"].items() if k != "src"},
-                "description": g["description"], "tip": g["tip"]}
-    return {"title": top.title, "image": top.image, "credit": None, "description": top.description, "tip": None}
+def product_guide(query: str, offers: list[Offer]) -> dict | None:
+    """Icon and description for what was searched, from the shared catalog."""
+    match = find(query, limit=1)
+    if match:
+        m = match[0]
+        return {"id": m["id"], "title": m["name"], "icon": m["icon"], "description": m["description"], "size": m["size"]}
+    if offers:
+        return {"id": None, "title": offers[0].title, "icon": None, "description": offers[0].description, "size": offers[0].size}
+    return None
 
 
 @app.get("/api/status")
@@ -102,7 +102,7 @@ async def search(q: str = Query(..., min_length=2, max_length=80), zip: str = Qu
     offers, errors = await find_offers(q, zip_code)
     priced = {o.retailer for o in offers}
     return {
-        "guide": product_guide(offers),
+        "guide": product_guide(q, offers),
         "query": q,
         "zip": zip_code,
         "demo_mode": demo_mode(),

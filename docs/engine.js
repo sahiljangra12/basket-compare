@@ -1,181 +1,178 @@
-// Browser-only price engine, used when no Basket Compare server is reachable
-// (for example on GitHub Pages). It mirrors app/units.py, app/compare.py and the
-// sample data in app/adapters/demo.py. Prices here are SAMPLE prices.
+// Basket Compare browser engine: product search (typo-tolerant), sample prices, basket maths.
+// Runs entirely in the browser so the site works on GitHub Pages. Prices here are SAMPLES.
 
-const UNITS = {
-  "fl oz": ["volume", 1], "floz": ["volume", 1], "fluid ounces": ["volume", 1],
-  gal: ["volume", 128], gallon: ["volume", 128], qt: ["volume", 32], pt: ["volume", 16],
-  l: ["volume", 33.814], ml: ["volume", 0.033814],
-  lbs: ["weight", 16], lb: ["weight", 16], pound: ["weight", 16], pounds: ["weight", 16],
-  oz: ["weight", 1], ounces: ["weight", 1], kg: ["weight", 35.274], g: ["weight", 0.035274],
-  ct: ["count", 1], count: ["count", 1], each: ["count", 1], pack: ["count", 1], dozen: ["count", 12],
-};
-const UNIT_RE = Object.keys(UNITS).sort((a, b) => b.length - a.length).map((u) => u.replace(" ", "\\s")).join("|");
-const NUM = "(\\d+(?:\\.\\d+)?|\\d+/\\d+)";
-const MULTI = new RegExp(`${NUM}\\s*(?:x|×)\\s*${NUM}\\s*(${UNIT_RE})\\b`, "i");
-const SINGLE = new RegExp(`${NUM}\\s*-?\\s*(${UNIT_RE})\\b`, "i");
-const PER = new RegExp(`(?:/|per\\s+)(${UNIT_RE})\\b`, "i");
-const DISPLAY = { weight: ["lb", 16], volume: ["fl oz", 1], count: ["item", 1] };
-const DISPLAY_PER = { lb: 16, "fl oz": 1, item: 1 };
+let catalog = null;
+let index = [];
 
-const num = (t) => (t.includes("/") ? t.split("/")[0] / t.split("/")[1] : parseFloat(t));
-const unitOf = (u) => UNITS[u.toLowerCase().replace(/\s+/, " ")];
-
-export function parseSize(text) {
-  if (!text) return null;
-  const t = text.toLowerCase();
-  let m = t.match(MULTI);
-  if (m) { const [dim, k] = unitOf(m[3]); return { qty: num(m[1]) * num(m[2]) * k, dim }; }
-  m = t.match(SINGLE);
-  if (m) { const [dim, k] = unitOf(m[2]); return { qty: num(m[1]) * k, dim }; }
-  m = t.match(PER);
-  if (m) { const [dim, k] = unitOf(m[1]); return { qty: k, dim }; }
-  return null;
+export async function load() {
+  if (catalog) return catalog;
+  catalog = await (await fetch("catalog.json?v=6")).json();
+  index = catalog.items.map((item, order) => {
+    const phrases = [item.name, ...item.aliases].map(norm);
+    const words = new Set(phrases.flatMap((p) => p.split(" ")).filter((w) => w.length > 1));
+    words.add(norm(item.category));
+    const nameWords = new Set(norm(item.name).split(" "));
+    return { item, order, phrases, words: [...words], nameWords, name: norm(item.name) };
+  });
+  return catalog;
 }
 
-function withUnitPrice(o) {
-  const s = parseSize(o.size) || parseSize(o.title);
-  if (s) {
-    const [label, per] = DISPLAY[s.dim];
-    o.unit = label;
-    o.unit_price = Math.round((o.price / (s.qty / per)) * 10000) / 10000;
+export const items = () => catalog.items;
+export const byId = (id) => catalog.items.find((i) => i.id === id);
+export const categories = () => [...new Set(catalog.items.map((i) => i.category))];
+
+// ---------- text matching ----------
+export function norm(s) {
+  return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9% ]+/g, " ").replace(/\s+/g, " ").trim();
+}
+const stem = (w) => (w.length > 4 && w.endsWith("es") && !w.endsWith("ses") ? w.slice(0, -2)
+  : w.length > 3 && w.endsWith("s") && !w.endsWith("ss") ? w.slice(0, -1) : w);
+
+// Damerau–Levenshtein distance with an early exit once it exceeds `max`.
+function distance(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    let rowMin = Infinity;
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      rowMin = Math.min(rowMin, d[i][j]);
+    }
+    if (rowMin > max) return max + 1;
   }
-  return o;
+  return d[a.length][b.length];
+}
+const allowed = (w) => (w.length <= 3 ? 0 : w.length <= 5 ? 1 : 2);
+
+// Score one query word against one product word. Higher is better; 0 means no match.
+function wordScore(q, w, isLast) {
+  if (q === w || stem(q) === stem(w)) return 10;
+  if (w.startsWith(q)) return isLast ? 8 : 6;          // typing in progress: "gra" -> grapes
+  if (q.length >= 4 && w.includes(q)) return 4;
+  if (q.length === 3 && w.length >= 4 && distance(q, w.slice(0, 4), 1) <= 1 && q[0] === w[0]) return 3; // "mlk" -> milk
+  const max = allowed(q);
+  if (max) {
+    const dist = Math.min(distance(q, w, max), distance(stem(q), stem(w), max),
+      isLast && w.length > q.length ? distance(q, w.slice(0, q.length), max) : 99);
+    if (dist <= max) return 6 - dist * 2 + (q[0] === w[0] ? 1 : 0); // "graps" -> grapes, "bananna" -> banana
+  }
+  return 0;
 }
 
+/** Search products. Returns [{item, score, fuzzy}] best first. */
+export function search(query, limit = 8) {
+  const q = norm(query);
+  if (!q) return [];
+  const qWords = q.split(" ").filter(Boolean);
+  const results = [];
+  for (const entry of index) {
+    let total = 0, fuzzy = false, matched = 0;
+    for (let k = 0; k < qWords.length; k++) {
+      let best = 0, raw = 0;
+      for (const w of entry.words) {
+        const sc = wordScore(qWords[k], w, k === qWords.length - 1);
+        raw = Math.max(raw, sc);
+        best = Math.max(best, sc + (sc && entry.nameWords.has(w) ? 1.5 : 0)); // the product's own name beats aliases
+      }
+      if (best === 0) continue;
+      if (raw < 6) fuzzy = true;
+      total += best; matched++;
+    }
+    if (matched < Math.max(1, qWords.length - (qWords.length > 2 ? 1 : 0))) continue;
+    if (matched < qWords.length) fuzzy = true;
+    // Prefer products whose own name matches over alias-only matches, and whole-phrase hits.
+    if (entry.phrases.some((p) => p === q)) total += 12;
+    else if (entry.phrases.some((p) => p.startsWith(q))) total += 6;
+    if (entry.name.includes(q)) total += 4;
+    total -= entry.name.split(" ").length * 0.3;   // shorter names first: "bananas" before "organic bananas"
+    results.push({ item: entry.item, score: total, fuzzy, order: entry.order });
+  }
+  results.sort((a, b) => b.score - a.score || a.order - b.order);
+  // Drop weak guesses when there are clearly better matches ("rice" shouldn't list ribeye).
+  const top = results[0]?.score ?? 0;
+  return results.filter((r) => r.score >= top * 0.6).slice(0, limit);
+}
+
+/** Closest product names when nothing matched, by letter overlap. */
+export function suggest(query, limit = 4) {
+  const tri = (s) => { const t = new Set(); const p = `  ${norm(s)} `; for (let i = 0; i < p.length - 2; i++) t.add(p.slice(i, i + 3)); return t; };
+  const qt = tri(query);
+  return index.map((e) => {
+    const best = Math.max(...e.phrases.map((p) => { const pt = tri(p); let n = 0; qt.forEach((t) => pt.has(t) && n++); return n / (qt.size + pt.size - n); }));
+    return { item: e.item, score: best };
+  }).filter((r) => r.score > 0.12).sort((a, b) => b.score - a.score).slice(0, limit).map((r) => r.item);
+}
+
+// ---------- sizes and unit prices ----------
+const UNITS = {
+  lb: ["weight", 16], oz: ["weight", 1], "fl oz": ["volume", 1], gal: ["volume", 128],
+  ct: ["count", 1], "sq ft": ["count", 1],
+};
+const LABEL = { weight: "lb", volume: "fl oz", count: "item" };
+const PER = { weight: 16, volume: 1, count: 1 };
+
+export function parseSize(size) {
+  const s = String(size).toLowerCase();
+  if (s.startsWith("per ")) { const [dim, k] = UNITS[s.slice(4)] || []; return dim ? { qty: k, dim } : null; }
+  const m = s.match(/^([\d.]+)\s*(lb|oz|fl oz|gal|ct|sq ft)\b/);
+  if (!m) return null;
+  const [dim, k] = UNITS[m[2]];
+  return { qty: parseFloat(m[1]) * k, dim };
+}
+
+export function unitPrice(price, size) {
+  const s = parseSize(size);
+  if (!s) return { unit_price: null, unit: null };
+  const label = s.dim === "count" && /sq ft/.test(size) ? "sq ft" : LABEL[s.dim];
+  return { unit_price: price / (s.qty / PER[s.dim]), unit: label };
+}
+
+// ---------- sample prices ----------
 function noise(...parts) {
   let h = 2166136261;
   for (const ch of parts.join("|")) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
   return 0.9 + ((h >>> 0) % 2000) / 10000;
 }
+const STORE_SCOPE = { Walmart: "online", "Amazon Fresh": "online" };
 
-let catalog;
-async function loadCatalog() {
-  if (!catalog) catalog = await (await fetch("sample-catalog.json?v=5")).json();
-  return catalog;
+/** Every store's offer for one product, cheapest per unit first. */
+export function offers(item, zip) {
+  return item.stores.map((store) => {
+    let price = item.price * catalog.index[store] * noise(item.id, store, zip);
+    price = Math.max(0.25, Math.round(price * 100) / 100 - (price > 2 ? 0.01 : 0));
+    price = Math.round(price * 100) / 100;
+    return {
+      retailer: store, title: item.name, size: item.size, price,
+      ...unitPrice(price, item.size),
+      url: item.links[store], price_scope: STORE_SCOPE[store] || "store", source: "demo",
+    };
+  }).sort((a, b) => (a.unit_price ?? a.price) - (b.unit_price ?? b.price));
 }
 
-const STOP = new Set(["the", "a", "an", "of", "and", "fresh", "organic"]);
-const tokens = (t) => new Set((t.toLowerCase().match(/[a-z0-9%]+/g) || [])
-  .filter((w) => !STOP.has(w)).map((w) => (w.length > 3 ? w.replace(/s+$/, "") : w)));
-
-function mainUnit(offers) {
-  const c = {};
-  offers.forEach((o) => o.unit && (c[o.unit] = (c[o.unit] || 0) + 1));
-  return Object.entries(c).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
-}
-
-function rank(offers) {
-  const unit = mainUnit(offers);
-  const comp = offers.filter((o) => o.unit === unit && o.unit_price != null)
-    .sort((a, b) => a.unit_price - b.unit_price || a.price - b.price);
-  const rest = offers.filter((o) => !comp.includes(o)).sort((a, b) => a.price - b.price);
-  return [...comp, ...rest];
-}
-
-const UNPRICED_NOTE = {
-  Giant: "No public price API — check price on Giant's site or order through Instacart.",
-  "Amazon Fresh": "Amazon's product API opens after the affiliate account has qualifying sales.",
-  Aldi: "No public price API — order through Instacart.",
-};
-
-async function findOffers(query, zip) {
-  const cat = await loadCatalog();
-  const q = query.toLowerCase().trim();
-  const offers = [];
-  for (const item of cat.items) {
-    if (!item.keywords.some((k) => k.includes(q) || q.includes(k)) && !item.title.toLowerCase().includes(q)) continue;
-    const ref = parseSize(Object.values(item.sizes)[0]);
-    const perBase = item.base / ref.qty;
-    for (const [retailer, size] of Object.entries(item.sizes)) {
-      const qty = parseSize(size).qty;
-      let price = perBase * qty * cat.index[retailer] * noise(item.title, retailer, zip);
-      if (qty > 1.5 * ref.qty) price *= 0.93;
-      offers.push(withUnitPrice({
-        retailer, title: item.title, size, price: Math.max(Math.round(price * 100) / 100, 0.25),
-        url: item.urls[retailer], in_stock: true, source: "demo",
-        image: item.guide?.photo.src ?? null, description: item.guide?.description ?? null,
-        store: ["Giant", "Harris Teeter", "Aldi"].includes(retailer) ? `${retailer} — sample store` : null,
-        price_scope: ["Walmart", "Amazon Fresh"].includes(retailer) ? "online" : "store",
-      }));
-    }
-  }
-  const need = tokens(query);
-  const rel = offers.filter((o) => [...need].every((w) => tokens(o.title).has(w)));
-  return rank(rel.length ? rel : offers);
-}
-
-export async function search(query, zip) {
-  const offers = await findOffers(query, zip);
-  const cat = await loadCatalog();
-  const priced = new Set(offers.map((o) => o.retailer));
-  const unpriced = Object.entries(UNPRICED_NOTE).filter(([r]) => !priced.has(r)).map(([retailer, reason]) => ({
-    retailer, reason,
-    url: retailer === "Giant" ? `https://giantfood.com/product-search/${encodeURIComponent(query)}`
-      : retailer === "Aldi" ? `https://www.aldi.us/results?q=${encodeURIComponent(query)}`
-      : `https://www.amazon.com/s?k=${encodeURIComponent(query)}&i=amazonfresh`,
-  }));
-  const top = offers[0];
-  const g = top && cat.items.find((i) => i.title === top.title)?.guide;
-  const guide = top ? (g
-    ? { title: top.title, image: g.photo.src, credit: { author: g.photo.author, license: g.photo.license, page: g.photo.page }, description: g.description, tip: g.tip }
-    : { title: top.title, image: top.image, credit: null, description: top.description, tip: null }) : null;
-  return { guide, query, zip, demo_mode: true, offers, best: offers[0] ?? null, unpriced, errors: [] };
-}
-
-const packQty = (o) => (parseSize(o.size) || parseSize(o.title))?.qty ?? null;
-
-function lineCost(o, unit, refQty, n) {
-  const q = packQty(o);
-  return unit && o.unit === unit && refQty && q ? o.price * (refQty / q) * n : o.price * n;
-}
-
-function amountLabel(unit, refQty) {
-  if (!unit || !refQty) return null;
-  if (unit === "fl oz" && refQty % 128 === 0) return `${refQty / 128} gal`;
-  const amt = +(refQty / DISPLAY_PER[unit]).toFixed(2);
-  return unit === "item" ? `${amt} ct` : `${amt} ${unit}`;
-}
-
-export async function basket(zip, items) {
-  const lines = [];
-  for (const it of items) {
-    const offers = await findOffers(it.query, zip);
-    const best = {};
-    offers.forEach((o) => { if (!best[o.retailer]) best[o.retailer] = o; });
-    const unit = mainUnit(Object.values(best));
-    const sizes = Object.values(best).filter((o) => o.unit === unit).map(packQty).filter(Boolean);
-    const counts = {};
-    sizes.forEach((s) => (counts[s] = (counts[s] || 0) + 1));
-    const refQty = +Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]?.[0] || null;
-    lines.push({ q: it.query, n: Math.max(1, it.quantity), best, unit, refQty });
-  }
-  const retailers = [...new Set(lines.flatMap((l) => Object.keys(l.best)))].sort();
-  const stores = retailers.map((r) => {
+/** Price a basket [{id, qty}] at every store, plus the cheapest mix of stores. */
+export function priceBasket(lines, zip, offersFor = (item) => offers(item, zip)) {
+  const priced = lines.map((l) => ({ ...l, item: byId(l.id) })).filter((l) => l.item)
+    .map((l) => ({ ...l, offers: offersFor(l.item) }));
+  const stores = catalog.stores.map((store) => {
     let total = 0; const missing = [];
-    for (const l of lines) l.best[r] ? (total += lineCost(l.best[r], l.unit, l.refQty, l.n)) : missing.push(l.q);
-    return { retailer: r, total: Math.round(total * 100) / 100, complete: !missing.length, missing };
-  }).sort((a, b) => (a.complete === b.complete ? a.total - b.total : a.complete ? -1 : 1));
-
-  let splitTotal = 0; const splitItems = []; const notFound = [];
-  for (const l of lines) {
-    const offers = Object.values(l.best);
-    if (!offers.length) { notFound.push(l.q); continue; }
-    const cheapest = offers.reduce((a, b) => (lineCost(b, l.unit, l.refQty, l.n) < lineCost(a, l.unit, l.refQty, l.n) ? b : a));
-    const cost = lineCost(cheapest, l.unit, l.refQty, l.n);
-    splitTotal += cost;
-    splitItems.push({ query: l.q, quantity: l.n, cost: Math.round(cost * 100) / 100, amount: amountLabel(l.unit, l.refQty), offer: cheapest });
-  }
-  const single = stores.find((s) => s.complete);
+    for (const l of priced) {
+      const o = l.offers.find((x) => x.retailer === store);
+      o ? (total += o.price * l.qty) : missing.push(l.item.name);
+    }
+    return { store, total: Math.round(total * 100) / 100, missing };
+  }).filter((s) => s.missing.length < priced.length)
+    .sort((a, b) => a.missing.length - b.missing.length || a.total - b.total);
+  const split = priced.map((l) => ({ ...l, best: l.offers[0] }));
+  const splitTotal = Math.round(split.reduce((t, l) => t + l.best.price * l.qty, 0) * 100) / 100;
+  const single = stores.find((s) => !s.missing.length);
   return {
-    stores,
-    split: { total: Math.round(splitTotal * 100) / 100, items: splitItems, retailers: [...new Set(splitItems.map((i) => i.offer.retailer))].sort() },
-    best_single_store: single?.retailer ?? null,
-    savings_vs_best_single: single ? Math.round((single.total - splitTotal) * 100) / 100 : null,
-    not_found: notFound, demo_mode: true,
+    lines: split, stores, splitTotal,
+    bestStore: single?.store ?? null,
+    savings: single ? Math.round((single.total - splitTotal) * 100) / 100 : 0,
+    splitStores: [...new Set(split.map((l) => l.best.retailer))],
   };
-}
-
-export function instacartLink(items) {
-  return `https://www.instacart.com/store/s?k=${encodeURIComponent(items[0]?.query ?? "")}`;
 }
